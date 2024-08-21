@@ -66,8 +66,17 @@ class MjlogDecoder:
 
         # shuffle = root.iter("SHUFFLE")
         go = root.iter("GO")
+        valid_type = True
+
         for child in go:
-            assert int(child.attrib["type"]) == 169  # only use 鳳南赤
+            game_type = int(child.attrib["type"])
+            if game_type not in [105, 41, 169]:
+                valid_type = False
+                break
+
+        if not valid_type:
+            return
+
         # TODO(sotetsuk): if there are > 2 "UN", some user became offline
         un = root.iter("UN")
         for child in un:
