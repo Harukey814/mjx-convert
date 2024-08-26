@@ -70,9 +70,9 @@ class MjlogDecoder:
 
         for child in go:
             game_type = int(child.attrib["type"])
-            assert game_type in [1, 9, 33, 41, 65, 97, 105, 137, 161, 163, 167, 169, 193, 223, 225] # 確認済みタイプ
+            assert game_type in [1, 9, 33, 41, 65, 97, 105, 137, 161, 163, 167, 169, 193, 233, 225] # 確認済みタイプ
 
-            if game_type not in [9, 41, 105, 137, 169, 223]: # 有効なタイプ
+            if game_type not in [9, 41, 105, 137, 169, 233]: # 有効なタイプ
                 valid_type = False
                 break
 
