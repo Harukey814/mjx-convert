@@ -232,46 +232,47 @@ def convert(
         assert (
             num_mjlog > 0 or num_mjxproto > 0
         ), "There are no valid file formats in the source directory."
-        for file_from in os.listdir(dir_from):
-            if not file_from.endswith("json") and not file_from.endswith("mjlog"):
-                continue
+        with click.progressbar(os.listdir(dir_from), label="Processing MJLog files") as bar:
+            for file_from in bar:
+                if not file_from.endswith("json") and not file_from.endswith("mjlog"):
+                    continue
 
-            path_from = os.path.join(dir_from, file_from)
-            path_to = os.path.join(
-                dir_to,
-                os.path.splitext(os.path.basename(path_from))[0] + "." + to_ext,
-            )
+                path_from = os.path.join(dir_from, file_from)
+                path_to = os.path.join(
+                    dir_to,
+                    os.path.splitext(os.path.basename(path_from))[0] + "." + to_ext,
+                )
 
-            if verbose:
-                sys.stderr.write(f"Converting {path_from} to {path_to}\n")
+                if verbose:
+                    sys.stderr.write(f"Converting {path_from} to {path_to}\n")
 
-            # 読み込み（全てのフォーマットで、１ファイル１半荘を想定）
-            transformed_lines: List[str] = []
-            with open(path_from, "r") as f:
-                for line in f:
-                    line = line.strip().strip("\n")
-                    if len(line) == 0:
-                        continue
+                # 読み込み（全てのフォーマットで、１ファイル１半荘を想定）
+                transformed_lines: List[str] = []
+                with open(path_from, "r") as f:
+                    for line in f:
+                        line = line.strip().strip("\n")
+                        if len(line) == 0:
+                            continue
 
-                    if buffer is None or converter is None:
-                        assert buffer is None and converter is None
-                        fmt_from = detect_format(line)
-                        converter = Converter(fmt_from, to(), compress)
-                        buffer = LineBuffer(fmt_from)
+                        if buffer is None or converter is None:
+                            assert buffer is None and converter is None
+                            fmt_from = detect_format(line)
+                            converter = Converter(fmt_from, to(), compress)
+                            buffer = LineBuffer(fmt_from)
 
-                    buffer.put(line)
+                        buffer.put(line)
 
-            # 変換
-            assert buffer is not None
-            list_lines: List[List[str]] = buffer.get(get_all=True)
-            assert len(list_lines) == 1, "Each file should have one game"
-            assert converter is not None
-            transformed_lines += converter.convert(list_lines[0])
+                # 変換
+                assert buffer is not None
+                list_lines: List[List[str]] = buffer.get(get_all=True)
+                assert len(list_lines) == 1, "Each file should have one game"
+                assert converter is not None
+                transformed_lines += converter.convert(list_lines[0])
 
-            # 書き込み
-            with open(path_to, "w") as f:
-                for line in transformed_lines:
-                    f.write(line)
+                # 書き込み
+                with open(path_to, "w") as f:
+                    for line in transformed_lines:
+                        f.write(line)
 
 
 def main():
