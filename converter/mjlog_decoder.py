@@ -27,7 +27,7 @@ class MjlogDecoder:
         wall_dices = reproduce_wall_from_mjlog(mjlog_str)
         root = ET.fromstring(mjlog_str)
         ret = []
-        for state in self._parse_each_game(root, wall_dices, self.modify, mjlog_str):
+        for state in self._parse_each_game(root, wall_dices, self.modify):
             ret.append(state)
         return ret
 
@@ -52,7 +52,7 @@ class MjlogDecoder:
         return ret
 
     def _parse_each_game(
-        self, root: Element, wall_dices: List[Tuple[List[int], List[int]]], modify: bool, mjlog_str: str
+        self, root: Element, wall_dices: List[Tuple[List[int], List[int]]], modify: bool
     ) -> Iterator[mjxproto.State]:
         state_ = mjxproto.State()
 
@@ -70,7 +70,7 @@ class MjlogDecoder:
 
         for child in go:
             game_type = int(child.attrib["type"])
-            assert game_type in [1, 9, 33, 41, 65, 97, 105, 137, 161, 163, 167, 169, 171, 193, 233, 225], f"Unexpected game_type: {game_type} in {mjlog_str}" # 確認済みタイプ
+            assert game_type in [1, 9, 33, 41, 65, 97, 105, 137, 161, 163, 167, 169, 171, 193, 233, 225], f"Unexpected game_type: {game_type}" # 確認済みタイプ
 
             if game_type not in [9, 41, 105, 137, 169, 233]: # 有効なタイプ
                 valid_type = False
