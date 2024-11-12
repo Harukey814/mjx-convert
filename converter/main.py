@@ -30,10 +30,7 @@ class LineBuffer:
     def is_new_round_(line):
         d = json.loads(line)
         state = json_format.ParseDict(d, mjxproto.State())
-        return (
-            state.public_observation.init_score.round == 0
-            and state.public_observation.init_score.honba == 0
-        )
+        return state.public_observation.init_score.round == 0 and state.public_observation.init_score.honba == 0
 
     def put(self, line: str) -> None:
         line = line.strip().strip("\n")
@@ -55,9 +52,7 @@ class LineBuffer:
             ), f"Each line should only has one game but has {cnt}\nInput file may miss the last newline character."
             self.buffer_.append([line])  # each line corresponds to each game
 
-    def get(
-        self, get_all: bool = False
-    ) -> List[List[str]]:  # each List[str] corresponds to each game.
+    def get(self, get_all: bool = False) -> List[List[str]]:  # each List[str] corresponds to each game.
         if get_all and len(self.curr_) != 0:
             assert self.fmt_ != "mjlog"
             self.buffer_.append(self.curr_)
@@ -226,12 +221,8 @@ def convert(
         to_ext = "mjlog" if to_type == "mjlog" else "json"
         num_mjlog = sum([1 for x in os.listdir(dir_from) if x.endswith("mjlog")])
         num_mjxproto = sum([1 for x in os.listdir(dir_from) if x.endswith("json")])
-        assert not (
-            num_mjlog > 0 and num_mjxproto > 0
-        ), "There are two different formats in source directory."
-        assert (
-            num_mjlog > 0 or num_mjxproto > 0
-        ), "There are no valid file formats in the source directory."
+        assert not (num_mjlog > 0 and num_mjxproto > 0), "There are two different formats in source directory."
+        assert num_mjlog > 0 or num_mjxproto > 0, "There are no valid file formats in the source directory."
         with click.progressbar(os.listdir(dir_from), label="Processing MJLog files") as bar:
             for file_from in bar:
                 if not file_from.endswith("json") and not file_from.endswith("mjlog"):
@@ -265,7 +256,11 @@ def convert(
                 # 変換
                 assert buffer is not None
                 list_lines: List[List[str]] = buffer.get(get_all=True)
-                assert len(list_lines) == 1, "Each file should have one game"
+
+                if len(list_lines) != 1:
+                    print(f"Warning: Skipping file {path_from} as it contains {len(list_lines)} games instead of one.")
+                    continue
+
                 assert converter is not None
                 transformed_lines += converter.convert(list_lines[0])
 
