@@ -256,11 +256,7 @@ def convert(
                 # 変換
                 assert buffer is not None
                 list_lines: List[List[str]] = buffer.get(get_all=True)
-
-                if len(list_lines) != 1:
-                    print(f"Warning: Skipping file {path_from} as it contains {len(list_lines)} games instead of one.")
-                    continue
-
+                assert len(list_lines) == 0 or len(list_lines) == 1, "Each file should have zero or one games."
                 assert converter is not None
                 transformed_lines += converter.convert(list_lines[0])
 
